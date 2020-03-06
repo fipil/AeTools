@@ -1,0 +1,16 @@
+[
+{
+  "modid": "aetools",
+  "name": "AE Tools",
+  "description": "Pomoc s presunem polozek z AE2 site na novejsi verzi serveru.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["FIpil"],
+  "credits": "Fipil",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
