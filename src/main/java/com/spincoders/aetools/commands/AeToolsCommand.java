@@ -14,9 +14,10 @@ import com.spincoders.aetools.AeTools;
 import com.spincoders.aetools.McItem;
 import com.spincoders.aetools.Utils;
 import com.spincoders.aetools.exportblocks.ExportModBlocksWork;
-import com.spincoders.aetools.jobs.CreateGlassWork;
-import com.spincoders.aetools.jobs.PositionJob;
-import net.minecraft.block.Block;
+import com.spincoders.aetools.jobs.RemoveAllModBlocksWork;
+import com.spincoders.aetools.jobs.IJob;
+import com.spincoders.aetools.jobs.position.PositionJob;
+import com.spincoders.aetools.jobs.regions.AllRegionsJob;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -112,19 +113,25 @@ public class AeToolsCommand implements ICommand {
                 sender.addChatMessage(new TextComponentString(Utils.stripAccents("Rezim plneni byl zrusen a seznam vybranych polozek vymazan.")));
             } else if(args.length==1 && args[0].equalsIgnoreCase("test")) {
 
-//                for(CreativeTabs tabs:CreativeTabs.CREATIVE_TAB_ARRAY) {
-//                    System.out.println(tabs.);
-//                }
+                sender.addChatMessage(new TextComponentString(Utils.getRegionDirectory(world).getAbsolutePath()));
 
             } else if(args.length>1 && args[0].equalsIgnoreCase("clear")) {
-                PositionJob job=AeTools.instance.clearJob;
+                IJob job=AeTools.instance.getJob("clear");
                 if(args[1].equalsIgnoreCase("start")) {
                     if(job==null) {
                         if(Utils.tryParseInt(args[2])) {
-                            AeTools.instance.clearJob = new PositionJob(world, new CreateGlassWork(), sender, sender.getPosition(), Integer.parseInt(args[2]));
-                            sender.addChatMessage(new TextComponentString("Job byl zahajen na svete: " + world.getWorldInfo().getWorldName()));
+                            int radius=Integer.parseInt(args[2]);
+                            if(radius>0) {
+                                AeTools.instance.addJob("clear", new PositionJob(world, new RemoveAllModBlocksWork(), sender, sender.getPosition(), radius));
+                                sender.addChatMessage(new TextComponentString("Job byl zahajen na svete: " + world.getWorldInfo().getWorldName() + " do vzdalenosti " + radius + "m na vsechny strany."));
+                            } else
+                                sender.addChatMessage(new TextComponentString("Chybny parametr. Radius musi byt > 0."));
+
+                        } else if("all".equalsIgnoreCase(args[2])) {
+                            AeTools.instance.addJob("clear", new AllRegionsJob(world, new RemoveAllModBlocksWork(), sender));
+                            sender.addChatMessage(new TextComponentString("Job byl zahajen na svete: " + world.getWorldInfo().getWorldName()+" ve vsech regionech."));
                         } else {
-                            sender.addChatMessage(new TextComponentString("Chybny parametr radius."));
+                            sender.addChatMessage(new TextComponentString("Chybny parametr. Pouzijte bud 'all' nebo radius."));
                         }
                     } else {
                         sender.addChatMessage(new TextComponentString("Job uz bezi, na svete: "+job.getWorld().getWorldInfo().getWorldName()));
@@ -133,8 +140,7 @@ public class AeToolsCommand implements ICommand {
                     if(job==null) {
                         sender.addChatMessage(new TextComponentString("Job nebezi."));
                     } else {
-                        AeTools.instance.clearJob.stop();
-                        AeTools.instance.clearJob=null;
+                        job.stop();
                         sender.addChatMessage(new TextComponentString("Job byl zastaven."));
                     }
                 }
@@ -143,19 +149,18 @@ public class AeToolsCommand implements ICommand {
                 sender.addChatMessage(new TextComponentString(Utils.stripAccents("State:"+state.toString())));*/
 
             } else if(args.length>2 && args[0].equalsIgnoreCase("registry")) {
-                PositionJob job=AeTools.instance.registryExportJob;
+                IJob job=AeTools.instance.getJob("registry");
                 if(args[1].equalsIgnoreCase("export") && args[2].length()>0 && Utils.tryParseInt(args[3])) {
                     if(job==null) {
                         if(Integer.parseInt(args[3])>0) {
-                            AeTools.instance.registryExportJob = new PositionJob(world, new ExportModBlocksWork(sender, args[2]), sender, sender.getPosition(), Integer.parseInt(args[3]));
+                            AeTools.instance.addJob("registry", new PositionJob(world, new ExportModBlocksWork(sender, args[2]), sender, sender.getPosition(), Integer.parseInt(args[3])));
                             sender.addChatMessage(new TextComponentString("Export byl zahajen na svete: " + world.getWorldInfo().getWorldName()));
                         } else {
                             sender.addChatMessage(new TextComponentString("Chybny parametr radius (musi byt cele kladne cislo > 0)."));
                         }
                     } else  {
                         if(args[2].equalsIgnoreCase("stop")) {
-                            AeTools.instance.registryExportJob.stop();
-                            AeTools.instance.registryExportJob=null;
+                            job.stop();
                             sender.addChatMessage(new TextComponentString("Export byl zastaven."));
                         } else {
                             sender.addChatMessage(new TextComponentString("Job uz bezi, na svete: "+job.getWorld().getWorldInfo().getWorldName()));

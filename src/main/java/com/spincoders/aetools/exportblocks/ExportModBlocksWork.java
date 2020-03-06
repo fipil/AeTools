@@ -39,29 +39,20 @@ public class ExportModBlocksWork implements IJobWork {
     }
 
     @Override
-    public boolean doWork(World world, int x, int z) {
-        boolean allIsAir=true;
+    public void doWork(World world, int x, int z) {
         for(int y=0;y<world.getHeight();y++) {
-            boolean aia=findBlock(world, new BlockPos(x, y, z));
-            allIsAir=allIsAir && aia;
+            findBlock(world, new BlockPos(x, y, z));
         }
-        return allIsAir;
     }
 
-    private boolean findBlock(World world, BlockPos pos)
+    private void findBlock(World world, BlockPos pos)
     {
         IBlockState state = world.getBlockState(pos);
         Block block=state.getBlock();
         TileEntity te=world.getTileEntity(pos);
 
         ResourceLocation resLoc=Block.REGISTRY.getNameForObject(block);
-        /*String resName=resLoc.toString();
-        if(te!=null) {
-            Class[] interfaces = te.getClass().getInterfaces();
-            for (Class iface : interfaces) {
-                System.out.println(resName+" : " + iface.getName());
-            }
-        }*/
+
         if(!resLoc.getResourceDomain().equals("minecraft")) {
             int id=modBlocks.register(resLoc.toString(), block.getLocalizedName());
             BlockEntry entry=new BlockEntry();
@@ -78,11 +69,6 @@ public class ExportModBlocksWork implements IJobWork {
             }
             modBlocks.blocks.add(entry);
         }
-
-        if(state.getMaterial().equals(Material.AIR))
-            return true;
-
-        return false;
     }
 
     @Override

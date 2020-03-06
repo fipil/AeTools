@@ -1,6 +1,8 @@
-package com.spincoders.aetools.jobs;
+package com.spincoders.aetools.jobs.position;
 
-import ibxm.Player;
+import com.spincoders.aetools.jobs.IJob;
+import com.spincoders.aetools.jobs.IJobWork;
+import com.spincoders.aetools.jobs.position.JobDirection;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
@@ -8,11 +10,12 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 
-public class PositionJob {
+public class PositionJob implements IJob {
     private ArrayList<JobDirection> directions;
     private World world;
     private ICommandSender sender;
     private IJobWork work;
+    boolean stopped;
 
     public PositionJob(World world, IJobWork work, ICommandSender sender, Vec3i pos, int radius) {
         this.world=world;
@@ -39,6 +42,9 @@ public class PositionJob {
 
     public boolean doWork() {
 
+        if(stopped)
+            return true;
+
         boolean allDone=true;
 
         String report="";
@@ -46,6 +52,9 @@ public class PositionJob {
             dir.doWork(world);
             allDone=allDone && dir.isDone();
             report+=(report.length()>0?"; ":"")+ dir.toString();
+
+            if(stopped)
+                break;
         }
 
         sender.addChatMessage(new TextComponentString(work.workName()+" job: "+report));
@@ -53,10 +62,10 @@ public class PositionJob {
             work.finish(world);
             sender.addChatMessage(new TextComponentString(work.workName() + " job byl dokoncen."));
         }
-        return allDone;
+        return allDone || stopped;
     }
 
     public void stop() {
-
+        stopped=true;
     }
 }

@@ -11,6 +11,7 @@ import com.spincoders.aetools.AeContainer;
 import com.spincoders.aetools.AeTools;
 import com.spincoders.aetools.CraftingPattern;
 import com.spincoders.aetools.McItem;
+import com.spincoders.aetools.jobs.IJob;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -192,16 +193,8 @@ public class PlayerEventHandler {
     }
 
     private void doJobs(TickEvent.ServerTickEvent event) {
-        if(AeTools.instance.clearJob!=null) {
-            boolean done=AeTools.instance.clearJob.doWork();
-            if(done)
-                AeTools.instance.clearJob=null;
-        }
-        if(AeTools.instance.registryExportJob!=null) {
-            boolean done=AeTools.instance.registryExportJob.doWork();
-            if(done)
-                AeTools.instance.registryExportJob=null;
-        }
+
+        AeTools.instance.doJobs();
     }
 
 }

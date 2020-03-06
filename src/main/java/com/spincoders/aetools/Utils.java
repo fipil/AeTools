@@ -1,5 +1,10 @@
 package com.spincoders.aetools;
 
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import java.io.File;
 import java.text.Normalizer;
 
 public class Utils {
@@ -43,6 +48,37 @@ public class Utils {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public static File getWorldSaveLocation(World world)
+    {
+        File dir = DimensionManager.getCurrentSaveRootDirectory();
+
+        if (world != null)
+        {
+            if (world.provider.getSaveFolder() != null)
+            {
+                return new File(dir, world.provider.getSaveFolder());
+            }
+            else if (world.provider.getDimension() == 0)
+            {
+                return dir;
+            }
+        }
+
+        return null;
+    }
+
+    public static File getRegionDirectory(World world)
+    {
+        File worldDir = getWorldSaveLocation(world);
+
+        if (worldDir != null)
+        {
+            return new File(worldDir, "region");
+        }
+
+        return null;
     }
 
 }

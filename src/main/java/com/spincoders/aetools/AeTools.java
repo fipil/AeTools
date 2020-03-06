@@ -2,7 +2,7 @@ package com.spincoders.aetools;
 
 import com.spincoders.aetools.commands.AeToolsCommand;
 import com.spincoders.aetools.handlers.PlayerEventHandler;
-import com.spincoders.aetools.jobs.PositionJob;
+import com.spincoders.aetools.jobs.IJob;
 import com.spincoders.aetools.proxy.CommonProxy;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 @Mod(modid = AeTools.MODID, version = AeTools.VERSION, name=AeTools.NAME, acceptableRemoteVersions = "*", useMetadata = true)
@@ -30,8 +31,7 @@ public class AeTools {
 
     public static Logger logger;
 
-    public PositionJob clearJob;
-    public PositionJob registryExportJob;
+    private HashMap<String,IJob> jobs=new HashMap<String,IJob>();
 
     public static void logInfo(String text) {
         if(logger!=null)
@@ -78,5 +78,42 @@ public class AeTools {
         MinecraftForge.EVENT_BUS.register(plHandler);
 
         event.registerServerCommand(new AeToolsCommand());
+    }
+
+    public boolean hasJob(String name) {
+        return jobs.containsKey(name);
+    }
+
+    public boolean addJob(String name, IJob job) {
+        if(!hasJob(name)) {
+            jobs.put(name, job);
+            return true;
+        }
+        return false;
+    }
+
+    public IJob getJob(String name) {
+        return hasJob(name)?jobs.get(name):null;
+    }
+
+    public void removeJob(IJob job) {
+        Iterator<Map.Entry<String,IJob>> iterator = jobs.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = iterator.next();
+            if (job.equals(entry.getValue())) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void doJobs() {
+        Iterator<Map.Entry<String,IJob>> iterator = jobs.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry entry = iterator.next();
+            IJob job=(IJob)entry.getValue();
+            boolean done=job.doWork();
+            if(done)
+                iterator.remove();
+        }
     }
 }

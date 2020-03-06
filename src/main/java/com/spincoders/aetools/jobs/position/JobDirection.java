@@ -1,5 +1,6 @@
-package com.spincoders.aetools.jobs;
+package com.spincoders.aetools.jobs.position;
 
+import com.spincoders.aetools.jobs.IJobWork;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
@@ -18,9 +19,6 @@ public class JobDirection {
     protected boolean done=false;
 
     protected boolean first;
-    private boolean wholeMap;
-
-    private boolean allWasAir;
 
     public JobDirection(boolean first, IJobWork work, int x, int z, int next, Vec3i spawn, int radius) {
         this.first=first;
@@ -31,7 +29,6 @@ public class JobDirection {
         currentZ=spawn.getZ();
         this.next=next;
         this.max=radius;
-        wholeMap=radius<0;
         this.work=work;
     }
 
@@ -42,40 +39,11 @@ public class JobDirection {
     public void doWork(World world) {
         long start=System.currentTimeMillis();
         while(!done) {
-            if(wholeMap)
-                doPositionWorkWholeMap(world);
-            else
-                doPositionWork(world);
+            doPositionWork(world);
 
-            if(System.currentTimeMillis()>start+100)
+            if(System.currentTimeMillis()>start+50)
                 break;
         }
-    }
-
-    private void doPositionWorkWholeMap(World world) {
-        if(done)
-            return;
-
-        boolean allIsAir=false;
-        if((currentX!=spawn.getX() || currentZ!=spawn.getZ()) || first )
-            allIsAir=work.doWork(world, currentX, currentZ);
-
-        currentX+=x;
-        currentZ+=z;
-
-        if(x==0 && allIsAir ) {
-            currentX+=next;
-            currentZ=spawn.getZ();
-            if(allWasAir)
-                done=true;
-        } else if(z==0 && allIsAir) {
-            currentZ+=next;
-            currentX=spawn.getX();
-            if(allWasAir)
-                done=true;
-        }
-
-        allWasAir=allIsAir;
     }
 
     private void doPositionWork(World world) {
