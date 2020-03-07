@@ -79,8 +79,8 @@ public class AeTools {
         plHandler =new PlayerEventHandler();
         MinecraftForge.EVENT_BUS.register(plHandler);
 
-        chHandler =new ChunkEventHandler();
-        MinecraftForge.EVENT_BUS.register(chHandler);
+        /*chHandler =new ChunkEventHandler();
+        MinecraftForge.EVENT_BUS.register(chHandler);*/
 
         event.registerServerCommand(new AeToolsCommand());
     }
