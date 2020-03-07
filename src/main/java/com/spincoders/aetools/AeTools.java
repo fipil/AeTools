@@ -1,6 +1,7 @@
 package com.spincoders.aetools;
 
 import com.spincoders.aetools.commands.AeToolsCommand;
+import com.spincoders.aetools.handlers.ChunkEventHandler;
 import com.spincoders.aetools.handlers.PlayerEventHandler;
 import com.spincoders.aetools.jobs.IJob;
 import com.spincoders.aetools.proxy.CommonProxy;
@@ -28,6 +29,7 @@ public class AeTools {
     public static CommonProxy proxy;
 
     private PlayerEventHandler plHandler;
+    private ChunkEventHandler chHandler;
 
     public static Logger logger;
 
@@ -76,6 +78,9 @@ public class AeTools {
 
         plHandler =new PlayerEventHandler();
         MinecraftForge.EVENT_BUS.register(plHandler);
+
+        chHandler =new ChunkEventHandler();
+        MinecraftForge.EVENT_BUS.register(chHandler);
 
         event.registerServerCommand(new AeToolsCommand());
     }

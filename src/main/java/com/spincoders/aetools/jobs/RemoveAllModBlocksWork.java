@@ -30,7 +30,7 @@ public class RemoveAllModBlocksWork implements IJobWork {
         ResourceLocation resLoc=Block.REGISTRY.getNameForObject(block);
 
         if(!resLoc.getResourceDomain().equals("minecraft")) {
-            world.removeTileEntity(pos);
+            //world.setT(pos);
             Block newBlock = Block.REGISTRY.getObject(new ResourceLocation("minecraft:air"));
             world.setBlockState(pos, newBlock.getBlockState().getBaseState());
          }

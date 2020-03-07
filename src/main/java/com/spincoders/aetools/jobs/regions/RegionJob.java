@@ -53,7 +53,7 @@ public class RegionJob {
 
     public void notifyProgress() {
         if(lastNotified!=progress) {
-            sender.addChatMessage(new TextComponentString(progress + "% done of " + region.name()));
+            sender.addChatMessage(new TextComponentString(progress + "% hotovo v regionu " + region.name()));
             lastNotified=progress;
         }
     }

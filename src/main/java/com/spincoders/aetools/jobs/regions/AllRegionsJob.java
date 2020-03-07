@@ -7,6 +7,9 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import org.lwjgl.Sys;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -24,22 +27,59 @@ public class AllRegionsJob implements IJob {
 
     private boolean done;
 
-    public AllRegionsJob(World world, IJobWork work, ICommandSender sender) {
-        this.world=world;
+    public AllRegionsJob(World world, IJobWork work, ICommandSender sender, String worldName) {
+
+
+        if(worldName!=null) {
+            System.out.println("Hledan svet: "+worldName);
+            for(WorldServer ws:DimensionManager.getWorlds()) {
+                System.out.println("ws: "+ws.getWorldInfo().getWorldName());
+                if(worldName.equals(ws.getWorldInfo().getWorldName())) {
+                    this.world=ws;
+                    break;
+                }
+            }
+        }
+
+        if(worldName!=null && this.world==null) {
+            sender.addChatMessage(new TextComponentString("Nemohu najit svet '"+worldName+"'. Zastavuji job."));
+            return;
+        }
+
+        if(this.world==null)
+            this.world=world;
         this.work=work;
         this.sender=sender;
 
-        File regionsPath=Utils.getRegionDirectory(world);
+        File regionsPath=worldName!=null?new File(new File(DimensionManager.getCurrentSaveRootDirectory(), worldName),"region"):Utils.getRegionDirectory(world);
+        //File regionsPath=Utils.getRegionDirectory(world);
+        if(regionsPath==null) {
+            sender.addChatMessage(new TextComponentString("[1] Nemohu najit cestu k souborum regionu. Zastavuji job."));
+            stopped=true;
+            return;
+        }
+
+        System.out.println("[AllRegionsJob.ctor] regionsPath: "+regionsPath);
+
         File[] regionFiles = regionsPath.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.startsWith("r.") && name.endsWith(".mca");
             }
         });
 
-        for(File file:regionFiles) {
-            Region reg=new Region(file);
-            if(reg.isValid())
-                regions.push(reg);
+        if(regionFiles!=null) {
+            for (File file : regionFiles) {
+                Region reg = new Region(file);
+                if (reg.isValid())
+                    regions.push(reg);
+            }
+        } else {
+            sender.addChatMessage(new TextComponentString("[2] Nemohu najit cestu k souborum regionu. Zastavuji job."));
+            stopped=true;
+        }
+
+        if(!stopped) {
+            sender.addChatMessage(new TextComponentString("Zahajuji mazani modovanych bloku ze sveta."));
         }
     }
 

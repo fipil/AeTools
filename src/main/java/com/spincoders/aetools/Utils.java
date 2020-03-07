@@ -53,6 +53,7 @@ public class Utils {
     public static File getWorldSaveLocation(World world)
     {
         File dir = DimensionManager.getCurrentSaveRootDirectory();
+        System.out.println("[getWorldSaveLocation] getCurrentSaveRootDirectory()"+dir.getAbsolutePath());
 
         if (world != null)
         {
@@ -63,6 +64,10 @@ public class Utils {
             else if (world.provider.getDimension() == 0)
             {
                 return dir;
+            }
+            else
+            {
+                System.out.println("[getWorldSaveLocation] "+dir);
             }
         }
 
@@ -75,7 +80,21 @@ public class Utils {
 
         if (worldDir != null)
         {
-            return new File(worldDir, "region");
+            System.out.println("[getRegionDirectory] worldDir: "+worldDir.getAbsolutePath());
+
+            File result= new File(worldDir, "region");
+
+            System.out.println("[getRegionDirectory] result: "+result.getAbsolutePath());
+
+            String wName=world.getWorldInfo().getWorldName();
+            System.out.println("[getRegionDirectory] World name: "+wName);
+
+            if(result!=null && !result.exists() && wName!=null) {
+                result=new File(new File(DimensionManager.getCurrentSaveRootDirectory(), wName),"region");
+                System.out.println("[getRegionDirectory] result with wName: "+result.getAbsolutePath());
+                if(result.exists())
+                    return result;
+            }
         }
 
         return null;

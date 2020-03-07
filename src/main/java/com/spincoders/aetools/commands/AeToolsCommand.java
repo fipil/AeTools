@@ -128,10 +128,11 @@ public class AeToolsCommand implements ICommand {
                                 sender.addChatMessage(new TextComponentString("Chybny parametr. Radius musi byt > 0."));
 
                         } else if("all".equalsIgnoreCase(args[2])) {
-                            AeTools.instance.addJob("clear", new AllRegionsJob(world, new RemoveAllModBlocksWork(), sender));
+                            AeTools.instance.addJob("clear", new AllRegionsJob(world, new RemoveAllModBlocksWork(), sender, null));
                             sender.addChatMessage(new TextComponentString("Job byl zahajen na svete: " + world.getWorldInfo().getWorldName()+" ve vsech regionech."));
                         } else {
-                            sender.addChatMessage(new TextComponentString("Chybny parametr. Pouzijte bud 'all' nebo radius."));
+                            AeTools.instance.addJob("clear", new AllRegionsJob(world, new RemoveAllModBlocksWork(), sender, args[2]));
+                            sender.addChatMessage(new TextComponentString("Job byl zahajen na svete: " +args[2]+" ve vsech regionech."));
                         }
                     } else {
                         sender.addChatMessage(new TextComponentString("Job uz bezi, na svete: "+job.getWorld().getWorldInfo().getWorldName()));
